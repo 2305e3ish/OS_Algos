@@ -1,128 +1,82 @@
 #include <stdio.h>
 
-typedef struct {
-    int arrival_time;
-    int burst_time;
-    int remaining_time;
-    int wait_time;
-    int turnaround_time;
-    int completion_time;
-} Process;
-
-void round_robin(Process processes[], int n, int tq) {
-    int timer = 0;
-    int remaining_processes = n;
-
-    // Track the processes that are ready to execute
-    int front = 0;
-    int rear = 0;
-    int ready_queue[n];
-    
-    // Initialize ready queue to -1 (indicating no process is in the queue)
+void calculateWaitingTime(int n, int bt[], int wt[], int at[], int tq) {
+    int rem_bt[n];
     for (int i = 0; i < n; i++) {
-        ready_queue[i] = -1;
+        rem_bt[i] = bt[i]; 
     }
 
-    // Begin Round Robin Scheduling
-    while (remaining_processes > 0) {
-        // Add any processes that have arrived at the current time
+    int t = 0; 
+
+    while (1) {
+        int done = 1; 
+
         for (int i = 0; i < n; i++) {
-            if (processes[i].arrival_time <= timer && processes[i].remaining_time > 0) {
-                int is_already_in_queue = 0;
-                for (int j = 0; j < rear; j++) {
-                    if (ready_queue[j] == i) {
-                        is_already_in_queue = 1;
-                        break;
-                    }
-                }
-                if (!is_already_in_queue) {
-                    ready_queue[rear++] = i;
+            if (rem_bt[i] > 0) {
+                done = 0; 
+
+                if (rem_bt[i] > tq) {
+                    t += tq; 
+                    rem_bt[i] -= tq; 
+                } else {
+                    t += rem_bt[i]; 
+                    wt[i] = t - bt[i] - at[i]; 
+                    rem_bt[i] = 0; 
                 }
             }
         }
 
-        // If the ready queue is empty, just increment the time and continue
-        if (front == rear) {
-            timer++;
-            continue;
+        if (done == 1) {
+            break;
         }
+    }
+}
 
-        // Pick the next process to execute
-        int process_index = ready_queue[front++];
-        
-        // Process execution for at most 'tq' time
-        int time_to_run = tq;
-        if (processes[process_index].remaining_time < tq) {
-            time_to_run = processes[process_index].remaining_time;
-        }
-
-        processes[process_index].remaining_time -= time_to_run;
-        timer += time_to_run;
-
-        // If the process has finished
-        if (processes[process_index].remaining_time == 0) {
-            processes[process_index].completion_time = timer;
-            remaining_processes--;
-        }
-
-        // If the process is not finished, add it back to the queue
-        if (processes[process_index].remaining_time > 0) {
-            ready_queue[rear++] = process_index;
-        }
-
-        // Reset the front index if it exceeds rear
-        if (front == rear) {
-            front = 0;
-        }
+void calculateTurnAroundTime(int n, int bt[], int wt[], int tat[]) {
+    for (int i = 0; i < n; i++) {
+        tat[i] = bt[i] + wt[i]; 
     }
 }
 
 int main() {
     int n, tq;
 
-    // Input number of processes and time quantum
     printf("Enter the number of processes: ");
     scanf("%d", &n);
+
+    int bt[n], at[n], wt[n], tat[n];
+
     printf("Enter the time quantum: ");
     scanf("%d", &tq);
 
-    Process processes[n];
-
-    // Input arrival times and burst times
-    printf("Enter the arrival and burst time for each process:\n");
     for (int i = 0; i < n; i++) {
-        printf("P%d arrival time: ", i + 1);
-        scanf("%d", &processes[i].arrival_time);
-        printf("P%d burst time: ", i + 1);
-        scanf("%d", &processes[i].burst_time);
-        processes[i].remaining_time = processes[i].burst_time;
-        processes[i].wait_time = 0;
-        processes[i].turnaround_time = 0;
-        processes[i].completion_time = 0;
+        printf("Enter burst time for process %d: ", i + 1);
+        scanf("%d", &bt[i]);
+        at[i] = 0; 
     }
 
-    // Execute round robin scheduling
-    round_robin(processes, n, tq);
+   
+    calculateWaitingTime(n, bt, wt, at, tq);
+    calculateTurnAroundTime(n, bt, wt, tat);
 
-    // Calculate waiting time and turnaround time
-    float total_wait_time = 0, total_turnaround_time = 0;
+
+    printf("\nProcesses\tBurst Time\tWaiting Time\tTurn-Around Time\n");
+
     for (int i = 0; i < n; i++) {
-        processes[i].turnaround_time = processes[i].completion_time - processes[i].arrival_time;
-        processes[i].wait_time = processes[i].turnaround_time - processes[i].burst_time;
-        total_wait_time += processes[i].wait_time;
-        total_turnaround_time += processes[i].turnaround_time;
+        printf("%d\t\t%d\t\t%d\t\t%d\n", i + 1, bt[i], wt[i], tat[i]);
     }
 
-    // Output the results
-    printf("\nProcess No.\tArrival Time\tBurst Time\tWait Time\tTurnaround Time\n");
+    float avg_wt = 0, avg_tat = 0;
     for (int i = 0; i < n; i++) {
-        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, processes[i].arrival_time, processes[i].burst_time,
-                processes[i].wait_time, processes[i].turnaround_time);
+        avg_wt += wt[i];
+        avg_tat += tat[i];
     }
 
-    // Print the averages
-    printf("\nAverage wait time: %.2f\n", total_wait_time / n);
-    printf("Average Turnaround Time: %.2f\n", total_turnaround_time / n);
+    avg_wt /= n;
+    avg_tat /= n;
+
+    printf("\nAverage Waiting Time: %.2f\n", avg_wt);
+    printf("Average Turn-Around Time: %.2f\n", avg_tat);
 
     return 0;
 }
