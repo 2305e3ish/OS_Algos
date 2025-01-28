@@ -6,35 +6,29 @@ void calculateWaitingTime(int n, int bt[], int wt[], int at[], int tq) {
         rem_bt[i] = bt[i]; 
     }
 
-    int t = 0; 
-
-    while (1) {
-        int done = 1; 
-
+    int t = 0;  // Time tracker
+    int done = 0;
+    
+    while (done != n) {
         for (int i = 0; i < n; i++) {
-            if (rem_bt[i] > 0) {
-                done = 0; 
-
+            if (rem_bt[i] > 0) {  // Process is not completed
                 if (rem_bt[i] > tq) {
-                    t += tq; 
-                    rem_bt[i] -= tq; 
+                    t += tq;
+                    rem_bt[i] -= tq;
                 } else {
-                    t += rem_bt[i]; 
-                    wt[i] = t - bt[i] - at[i]; 
-                    rem_bt[i] = 0; 
+                    t += rem_bt[i];
+                    wt[i] = t - bt[i];  // Correct waiting time calculation
+                    rem_bt[i] = 0;
+                    done++;  // Process is done
                 }
             }
-        }
-
-        if (done == 1) {
-            break;
         }
     }
 }
 
 void calculateTurnAroundTime(int n, int bt[], int wt[], int tat[]) {
     for (int i = 0; i < n; i++) {
-        tat[i] = bt[i] + wt[i]; 
+        tat[i] = bt[i] + wt[i]; // Turnaround Time = Burst Time + Waiting Time
     }
 }
 
@@ -52,13 +46,11 @@ int main() {
     for (int i = 0; i < n; i++) {
         printf("Enter burst time for process %d: ", i + 1);
         scanf("%d", &bt[i]);
-        at[i] = 0; 
+        at[i] = 0; // Assume all processes arrive at time 0
     }
 
-   
     calculateWaitingTime(n, bt, wt, at, tq);
     calculateTurnAroundTime(n, bt, wt, tat);
-
 
     printf("\nProcesses\tBurst Time\tWaiting Time\tTurn-Around Time\n");
 
