@@ -40,14 +40,25 @@ void display(struct Process p[], int n) {
 
 int main() {
     int n;
+    printf("Enter the number of processes: ");
     scanf("%d", &n);
+
     struct Process p[n];
+
     for (int i = 0; i < n; i++) {
         p[i].id = i + 1;
+        printf("Enter burst time and priority for process %d: ", i + 1);
         scanf("%d %d", &p[i].bt, &p[i].priority);
     }
+
+    // Sort processes by priority (lower priority number means higher priority)
     sortProcesses(p, n);
+
+    // Calculate waiting time and turnaround time
     calculateTimes(p, n);
+
+    // Display the results
     display(p, n);
+
     return 0;
 }
