@@ -1,1 +1,1 @@
-Hello, this is a test file. The size is not known by me so let's see if garbage values come.
+Hello, this is a test file.

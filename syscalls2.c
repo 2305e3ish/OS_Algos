@@ -8,14 +8,14 @@
 
 int main() {
     // Open a file for writing
-    int file = open("example.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    int file = open("example.txt", O_WRONLY | O_CREAT | O_TRUNC);
     if (file == -1) {
         perror("Open failed");
         return 1;
     }
 
     // Write to the file
-    const char *text = "Hello, this is a test file. The size is not known by me so let's see if garbage values come.\n";
+    const char *text = "Hello, this is a test file.\n";
     ssize_t bytesWritten = write(file, text, strlen(text));
     if (bytesWritten == -1) {
         perror("Write failed");
