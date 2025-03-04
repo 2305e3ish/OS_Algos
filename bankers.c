@@ -39,7 +39,6 @@ int main() {
         for (int j = 0; j < n; j++){
             avail[i] -= alloc[j][i];
         }
-        
     }
 
     // Initialize necessary arrays
@@ -56,7 +55,7 @@ int main() {
     }
 
     // Banker's Algorithm to find safe sequence
-    
+    printf("process\tneed\t\tavailable before\tavailable after execution\n");
     for (k = 0; k < n; k++) {
         for (i = 0; i < n; i++) {
             if (f[i] == 0) {
@@ -69,9 +68,22 @@ int main() {
                 }
                 if (flag == 0) {
                     ans[ind++] = i;
+                    printf("P%d\t", i);
+                    for (j = 0; j < m; j++) {
+                        printf("%d ", need[i][j]);
+                    }
+                    printf("\t\t");
+                    for (j = 0; j < m; j++) {
+                        printf("%d ", avail[j]);
+                    }
+                    printf("\t\t\t\t");
                     for (int y = 0; y < m; y++) {
                         avail[y] += alloc[i][y];
                     }
+                    for (j = 0; j < m; j++) {
+                        printf("%d ", avail[j]);
+                    }
+                    printf("\n");
                     f[i] = 1;
                 }
             }
