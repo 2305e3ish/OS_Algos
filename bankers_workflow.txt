@@ -1,0 +1,261 @@
+Workflow Explanation
+
+    Input Number of Processes and Resources:
+        The user is prompted to enter the number of processes (n) and the number of resources (m).
+
+    Initialize Matrices and Arrays:
+        alloc[n][m]: Allocation matrix where alloc[i][j] represents the number of resource j allocated to process i.
+        max[n][m]: Maximum matrix where max[i][j] represents the maximum demand of resource j by process i.
+        avail[m]: Available resources array where avail[j] represents the number of available instances of resource j.
+        total[m]: Total instances of resources array where total[j] represents the total number of instances of resource j.
+
+    Input Allocation Matrix:
+        The user is prompted to enter the allocation matrix.
+
+    Input Maximum Matrix:
+        The user is prompted to enter the maximum matrix.
+
+    Input Total Instances of Resources:
+        The user is prompted to enter the total instances of resources.
+
+    Calculate Available Resources:
+        The available resources are calculated by subtracting the allocated resources from the total resources for each resource type.
+
+    Initialize Necessary Arrays:
+        f[n]: Finish array where f[i] indicates whether process i has finished (1) or not (0).
+        ans[n]: Safe sequence array where ans stores the safe sequence of processes.
+        need[n][m]: Need matrix where need[i][j] represents the remaining need of resource j for process i.
+
+    Calculate Need Matrix:
+        The need matrix is calculated by subtracting the allocation matrix from the maximum matrix for each process and resource type.
+
+    Banker's Algorithm to Find Safe Sequence:
+        The algorithm iterates through the processes to find a safe sequence.
+        For each process, it checks if the process can be allocated the available resources (i.e., if the need of the process is less than or equal to the available resources).
+        If a process can be allocated the resources, it is added to the safe sequence, and the resources allocated to the process are added back to the available resources.
+        The process is marked as finished.
+
+    Check if System is in a Safe State:
+        The algorithm checks if all processes have finished. If not, the system is not in a safe state.
+
+    Print Safe Sequence:
+        If the system is in a safe state, the safe sequence is printed.
+
+Sure, let's take an example and do a dry run of the complete code step by step.
+
+### Example Input:
+```plaintext
+Enter the number of processes: 3
+Enter the number of resources: 3
+Enter the allocation matrix:
+0 1 0
+2 0 0
+3 0 2
+Enter the maximum matrix:
+7 5 3
+3 2 2
+9 0 2
+Enter the total instances of resources:
+10 5 7
+```
+
+### Dry Run:
+
+1. **Input Number of Processes and Resources**:
+    - `n = 3` (number of processes)
+    - `m = 3` (number of resources)
+
+2. **Initialize Matrices and Arrays**:
+    - `alloc[3][3]`
+    - `max[3][3]`
+    - `avail[3]`
+    - `total[3]`
+
+3. **Input Allocation Matrix**:
+    ```plaintext
+    alloc = [
+        [0, 1, 0],
+        [2, 0, 0],
+        [3, 0, 2]
+    ]
+    ```
+
+4. **Input Maximum Matrix**:
+    ```plaintext
+    max = [
+        [7, 5, 3],
+        [3, 2, 2],
+        [9, 0, 2]
+    ]
+    ```
+
+5. **Input Total Instances of Resources**:
+    ```plaintext
+    total = [10, 5, 7]
+    ```
+
+6. **Calculate Available Resources**:
+    ```plaintext
+    avail[0] = total[0] - (alloc[0][0] + alloc[1][0] + alloc[2][0]) = 10 - (0 + 2 + 3) = 5
+    avail[1] = total[1] - (alloc[0][1] + alloc[1][1] + alloc[2][1]) = 5 - (1 + 0 + 0) = 4
+    avail[2] = total[2] - (alloc[0][2] + alloc[1][2] + alloc[2][2]) = 7 - (0 + 0 + 2) = 5
+    avail = [5, 4, 5]
+    ```
+
+7. **Initialize Necessary Arrays**:
+    - `f = [0, 0, 0]` (Finish array)
+    - `ans = [0, 0, 0]` (Safe sequence array)
+    - `ind = 0` (Index for safe sequence)
+
+8. **Calculate Need Matrix**:
+    ```plaintext
+    need[0][0] = max[0][0] - alloc[0][0] = 7 - 0 = 7
+    need[0][1] = max[0][1] - alloc[0][1] = 5 - 1 = 4
+    need[0][2] = max[0][2] - alloc[0][2] = 3 - 0 = 3
+    need[1][0] = max[1][0] - alloc[1][0] = 3 - 2 = 1
+    need[1][1] = max[1][1] - alloc[1][1] = 2 - 0 = 2
+    need[1][2] = max[1][2] - alloc[1][2] = 2 - 0 = 2
+    need[2][0] = max[2][0] - alloc[2][0] = 9 - 3 = 6
+    need[2][1] = max[2][1] - alloc[2][1] = 0 - 0 = 0
+    need[2][2] = max[2][2] - alloc[2][2] = 2 - 2 = 0
+    need = [
+        [7, 4, 3],
+        [1, 2, 2],
+        [6, 0, 0]
+    ]
+    ```
+
+9. **Banker's Algorithm to Find Safe Sequence**:
+    - **First Iteration**:
+        - Process 0: `need[0] = [7, 4, 3]` is not less than or equal to `avail = [5, 4, 5]` (fails for resource 0).
+        - Process 1: `need[1] = [1, 2, 2]` is less than or equal to `avail = [5, 4, 5]`.
+            - Allocate resources to Process 1.
+            - Update `avail`: `avail = [5 + 2, 4 + 0, 5 + 0] = [7, 4, 5]`
+            - Mark Process 1 as finished: `f[1] = 1`
+            - Add Process 1 to safe sequence: `ans[ind++] = 1`
+    - **Second Iteration**:
+        - Process 0: `need[0] = [7, 4, 3]` is not less than or equal to `avail = [7, 4, 5]` (fails for resource 0).
+        - Process 2: `need[2] = [6, 0, 0]` is less than or equal to `avail = [7, 4, 5]`.
+            - Allocate resources to Process 2.
+            - Update `avail`: `avail = [7 + 3, 4 + 0, 5 + 2] = [10, 4, 7]`
+            - Mark Process 2 as finished: `f[2] = 1`
+            - Add Process 2 to safe sequence: `ans[ind++] = 2`
+    - **Third Iteration**:
+        - Process 0: `need[0] = [7, 4, 3]` is less than or equal to `avail = [10, 4, 7]`.
+            - Allocate resources to Process 0.
+            - Update `avail`: `avail = [10 + 0, 4 + 1, 7 + 0] = [10, 5, 7]`
+            - Mark Process 0 as finished: `f[0] = 1`
+            - Add Process 0 to safe sequence: `ans[ind++] = 0`
+
+10. **Check if System is in a Safe State**:
+    - All processes are finished: `f = [1, 1, 1]`
+    - System is in a safe state.
+
+11. **Print Safe Sequence**:
+    ```plaintext
+    Following is the SAFE Sequence
+     P1 -> P2 -> P0
+    ```
+
+### Summary
+The Banker's Algorithm successfully finds a safe sequence for the given input. 
+The safe sequence is `P1 -> P2 -> P0`, indicating that the system can allocate resources to 
+these processes in this order without leading to a deadlock.
+
+bankers algorithm code:
+for (k = 0; k < n; k++) {
+    for (i = 0; i < n; i++) {
+        if (f[i] == 0) {
+            int flag = 0;
+            for (j = 0; j < m; j++) {
+                if (need[i][j] > avail[j]) {
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 0) {
+                ans[ind++] = i;
+                for (int y = 0; y < m; y++) {
+                    avail[y] += alloc[i][y];
+                }
+                f[i] = 1;
+            }
+        }
+    }
+}
+
+Explanation of Variables and Loops
+
+    Outer Loop (for (k = 0; k < n; k++)):
+        This loop runs n times to ensure that all processes are checked multiple times if necessary.
+
+    Inner Loop (for (i = 0; i < n; i++)):
+        This loop iterates over each process to check if it can be allocated the available resources.
+
+    Check if Process is Finished (if (f[i] == 0)):
+        This condition checks if the process i has not finished yet (f[i] == 0).
+
+    Flag Initialization (int flag = 0):
+        A flag is initialized to 0. This flag will be used to determine if the process can be allocated the available resources.
+
+    Resource Check Loop (for (j = 0; j < m; j++)):
+        This loop iterates over each resource to check if the need of the process i for resource j is less than or equal to the available resources.
+
+    Check Resource Availability (if (need[i][j] > avail[j])):
+        If the need of process i for resource j is greater than the available resources, set the flag to 1 and break out of the loop.
+
+    Allocate Resources if Possible (if (flag == 0)):
+        If the flag is still 0 after checking all resources, it means the process can be allocated the available resources.
+        Add the process i to the safe sequence (ans[ind++] = i).
+        Update the available resources by adding the resources allocated to process i back to the available resources (avail[y] += alloc[i][y]).
+        Mark the process i as finished (f[i] = 1).
+
+example dry run of above snippet of code:
+Initial Calculations:
+avail = [5, 4, 5]
+need = [
+    [7, 4, 3],
+    [1, 2, 2],
+    [6, 0, 0]
+]
+f = [0, 0, 0]
+ans = [0, 0, 0]
+ind = 0
+
+Dry Run:
+
+    First Iteration (k = 0):
+        Process 0 (i = 0):
+            need[0] = [7, 4, 3] is not less than or equal to avail = [5, 4, 5] (fails for resource 0).
+        Process 1 (i = 1):
+            need[1] = [1, 2, 2] is less than or equal to avail = [5, 4, 5].
+            Allocate resources to Process 1.
+            Update avail: avail = [5 + 2, 4 + 0, 5 + 0] = [7, 4, 5]
+            Mark Process 1 as finished: f[1] = 1
+            Add Process 1 to safe sequence: ans[ind++] = 1 (ind becomes 1)
+        Process 2 (i = 2):
+            need[2] = [6, 0, 0] is less than or equal to avail = [7, 4, 5].
+            Allocate resources to Process 2.
+            Update avail: avail = [7 + 3, 4 + 0, 5 + 2] = [10, 4, 7]
+            Mark Process 2 as finished: f[2] = 1
+            Add Process 2 to safe sequence: ans[ind++] = 2 (ind becomes 2)
+
+    Second Iteration (k = 1):
+        Process 0 (i = 0):
+            need[0] = [7, 4, 3] is less than or equal to avail = [10, 4, 7].
+            Allocate resources to Process 0.
+            Update avail: avail = [10 + 0, 4 + 1, 7 + 0] = [10, 5, 7]
+            Mark Process 0 as finished: f[0] = 1
+            Add Process 0 to safe sequence: ans[ind++] = 0 (ind becomes 3)
+
+    Third Iteration (k = 2):
+        All processes are already finished (f = [1, 1, 1]), so no further allocation is needed.
+
+Final State:
+f = [1, 1, 1]
+ans = [1, 2, 0]
+avail = [10, 5, 7]
+
+output:
+Following is the SAFE Sequence
+ P1 -> P2 -> P0

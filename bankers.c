@@ -56,7 +56,7 @@ int main() {
     }
 
     // Banker's Algorithm to find safe sequence
-    int y = 0;
+    
     for (k = 0; k < n; k++) {
         for (i = 0; i < n; i++) {
             if (f[i] == 0) {
@@ -69,7 +69,7 @@ int main() {
                 }
                 if (flag == 0) {
                     ans[ind++] = i;
-                    for (y = 0; y < m; y++) {
+                    for (int y = 0; y < m; y++) {
                         avail[y] += alloc[i][y];
                     }
                     f[i] = 1;
