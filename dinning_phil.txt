@@ -1,0 +1,101 @@
+AIM:
+To implement a deadlock-free solution to the Dining Philosophers Problem using monitors. The solution ensures that philosophers can eat only when both of their adjacent chopsticks are available, preventing deadlock and starvation.
+
+---
+
+ALGORITHM:
+
+1. Initialize States:
+   - Each philosopher starts in the THINKING state.
+   - Use a monitor with three operations: pickup(), putdown(), and test().
+
+2. Pickup Forks:
+   - Mark philosopher as HUNGRY.
+   - Check if both left and right neighbors are not eating.
+   - If both forks are available, philosopher starts eating.
+   - Otherwise, the philosopher waits.
+
+3. Put Down Forks:
+   - Mark the philosopher as THINKING.
+   - Signal the left and right neighbors to check if they can eat.
+
+4. Monitor Synchronization:
+   - Use a monitor to control access to shared variables.
+   - Use condition variables to allow philosophers to wait until they can eat.
+
+---
+
+PROCEDURE:
+
+1. Define shared states and monitor:
+   - Enum states THINKING, HUNGRY, EATING.
+   - Condition variable array for each philosopher.
+
+2. Monitor Functions:
+   - test(i): Checks if philosopher i can eat.
+   - pickup(i): Attempts to pick up forks.
+   - putdown(i): Puts down forks and signals neighbors.
+
+3. Simulation Execution:
+   - Each philosopher alternates between thinking, getting hungry, eating, and returning to thinking.
+   - The program ensures that all philosophers attempt to eat at least once before terminating.
+
+---
+
+SAMPLE OUTPUT:
+
+Philosopher 0 is thinking.
+Philosopher 0 is hungry.
+Philosopher 0 is eating.
+Philosopher 0 is thinking.
+Philosopher 0 finished eating.
+Philosopher 1 is thinking.
+Philosopher 1 is hungry.
+Philosopher 1 is eating.
+Philosopher 1 is thinking.
+Philosopher 1 finished eating.
+Philosopher 2 is thinking.
+Philosopher 2 is hungry.
+Philosopher 2 is eating.
+Philosopher 2 is thinking.
+Philosopher 2 finished eating.
+Philosopher 3 is thinking.
+Philosopher 3 is hungry.
+Philosopher 3 is eating.
+Philosopher 3 is thinking.
+Philosopher 3 finished eating.
+Philosopher 4 is thinking.
+Philosopher 4 is hungry.
+Philosopher 4 is eating.
+Philosopher 4 is thinking.
+Philosopher 4 finished eating.
+Simulation complete: All philosophers have attempted to eat.
+
+---
+
+EXPLANATION OF OUTPUT:
+
+1. Thinking:
+   - Each philosopher starts in the THINKING state.
+
+2. Getting Hungry:
+   - Each philosopher requests forks by transitioning to the HUNGRY state.
+
+3. Eating:
+   - The test() function ensures a philosopher eats only if both neighbors are not eating.
+
+4. Finishing Eating:
+   - After eating, a philosopher puts down forks and signals neighbors.
+
+5. Completion:
+   - The program ensures that all philosophers attempt to eat at least once before exiting.
+
+---
+
+KEY ADVANTAGES OF USING MONITORS:
+
+- Ensures mutual exclusion – Only one philosopher modifies shared variables at a time.
+- Prevents deadlock – Philosophers eat only if both forks are available.
+- Reduces starvation – Each philosopher eventually gets a chance to eat.
+
+This monitor-based approach efficiently synchronizes philosophers and ensures deadlock-free execution.
