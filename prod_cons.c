@@ -3,73 +3,64 @@
 #include <pthread.h>
 #include <unistd.h>
 
-// Define a simple semaphore structure
-typedef struct {
-    int value;
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
-} semaphore;
+#define BUFFER_SIZE 5 // Fixed buffer size
 
-// Initialize the semaphore
-void sem_init(semaphore *s, int value) {
-    s->value = value;
-    pthread_mutex_init(&s->lock, NULL);
-    pthread_cond_init(&s->cond, NULL);
-}
+int buffer[BUFFER_SIZE]; 
+int count = 0, in = 0, out = 0; // Buffer variables
 
-// wait() operation
-void wait_sem(semaphore *s) {
-    pthread_mutex_lock(&s->lock);
-    s->value--;
-    if (s->value < 0) {
-        pthread_cond_wait(&s->cond, &s->lock);
+pthread_mutex_t mutex; // Mutex for synchronization
+pthread_cond_t full, empty; // Condition variables
+
+void *producer(void *arg) {
+    while (1) {
+        sleep(1); // Simulate production time
+        int item = rand() % 100;
+
+        pthread_mutex_lock(&mutex);
+        while (count == BUFFER_SIZE) 
+            pthread_cond_wait(&empty, &mutex); // Wait if buffer is full
+        
+        buffer[in] = item;
+        printf("Producer produced: %d\n", item);
+        in = (in + 1) % BUFFER_SIZE;
+        count++;
+
+        pthread_cond_signal(&full); // Signal consumer
+        pthread_mutex_unlock(&mutex);
     }
-    pthread_mutex_unlock(&s->lock);
 }
 
-// signal() operation
-void signal_sem(semaphore *s) {
-    pthread_mutex_lock(&s->lock);
-    s->value++;
-    if (s->value <= 0) {
-        pthread_cond_signal(&s->cond);
+void *consumer(void *arg) {
+    while (1) {
+        sleep(2); // Simulate consumption time
+
+        pthread_mutex_lock(&mutex);
+        while (count == 0) 
+            pthread_cond_wait(&full, &mutex); // Wait if buffer is empty
+        
+        int item = buffer[out];
+        printf("Consumer consumed: %d\n", item);
+        out = (out + 1) % BUFFER_SIZE;
+        count--;
+
+        pthread_cond_signal(&empty); // Signal producer
+        pthread_mutex_unlock(&mutex);
     }
-    pthread_mutex_unlock(&s->lock);
-}
-
-// Thread function
-void *thread_func(void *arg) {
-    semaphore *s = (semaphore *)arg;
-    printf("Thread: Waiting on semaphore...\n");
-    wait_sem(s);
-    printf("Thread: Woken up! Proceeding...\n");
-    return NULL;
 }
 
 int main() {
-    semaphore sem;
-    pthread_t tid;
-    
-    // Initialize semaphore with 0
-    sem_init(&sem, 0);
-    
-    // Create a thread that will block on the semaphore
-    if (pthread_create(&tid, NULL, thread_func, (void *)&sem) != 0) {
-        perror("Error creating thread");
-        exit(EXIT_FAILURE);
-    }
-    
-    // Sleep for 2 seconds
-    sleep(2);
-    printf("Main: Signaling semaphore to wake the waiting thread.\n");
-    signal_sem(&sem);
-    
-    // Wait for thread to finish
-    pthread_join(tid, NULL);
-    
-    // Clean up resources
-    pthread_mutex_destroy(&sem.lock);
-    pthread_cond_destroy(&sem.cond);
-    
+    pthread_t prod, cons;
+    srand(time(NULL));
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&full, NULL);
+    pthread_cond_init(&empty, NULL);
+
+    pthread_create(&prod, NULL, producer, NULL);
+    pthread_create(&cons, NULL, consumer, NULL);
+
+    pthread_join(prod, NULL);
+    pthread_join(cons, NULL);
+
     return 0;
 }

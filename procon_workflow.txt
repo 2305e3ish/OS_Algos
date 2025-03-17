@@ -1,0 +1,122 @@
+AIM:
+To implement the Producer-Consumer Problem using threads, mutex locks, and condition variables in C with a fixed-size buffer.
+The goal is to ensure synchronization so that:
+- The producer does not produce when the buffer is full.
+- The consumer does not consume when the buffer is empty.
+
+---
+
+ALGORITHM:
+
+Producer Algorithm:
+1. Sleep for a fixed/random time to simulate production time.
+2. Generate a random number as an item.
+3. Acquire the mutex lock (pthread_mutex_lock(&mutex)).
+4. Check if the buffer is full (count == BUFFER_SIZE):
+   - If full, wait (pthread_cond_wait(&empty, &mutex)).
+5. Insert the item into the buffer at buffer[in].
+6. Update the buffer index (in) using circular indexing.
+7. Increase the count of items in the buffer (count++).
+8. Signal the consumer (pthread_cond_signal(&full)) that an item is available.
+9. Release the mutex lock (pthread_mutex_unlock(&mutex)).
+
+Consumer Algorithm:
+1. Sleep for a fixed/random time to simulate consumption time.
+2. Acquire the mutex lock (pthread_mutex_lock(&mutex)).
+3. Check if the buffer is empty (count == 0):
+   - If empty, wait (pthread_cond_wait(&full, &mutex)).
+4. Remove an item from the buffer at buffer[out].
+5. Update the buffer index (out) using circular indexing.
+6. Decrease the count of items in the buffer (count--).
+7. Signal the producer (pthread_cond_signal(&empty)) that space is available.
+8. Release the mutex lock (pthread_mutex_unlock(&mutex)).
+
+---
+
+PROCEDURE:
+
+1. Initialize shared resources (buffer, mutex, condition variables).
+2. Create producer and consumer threads using pthread_create().
+3. Producers generate items and insert them if space is available.
+4. Consumers remove items if the buffer is not empty.
+5. Synchronization mechanisms ensure:
+   - The producer waits if the buffer is full.
+   - The consumer waits if the buffer is empty.
+6. The program runs indefinitely, simulating real-time producer-consumer behavior.
+
+---
+
+EXPLANATION OF CODE ELEMENTS:
+
+1. Header Files:
+   #include <stdio.h>  - Provides input/output functions (printf, scanf).
+   #include <stdlib.h> - Used for rand(), srand(), and exit().
+   #include <pthread.h> - Provides threading support (pthread_create, pthread_mutex_t).
+   #include <unistd.h> - Used for sleep() function.
+
+2. Buffer and Synchronization Variables:
+   #define BUFFER_SIZE 5 - Defines a fixed-size buffer of 5 slots.
+   int buffer[BUFFER_SIZE]; - Stores produced items in an array.
+   int count = 0, in = 0, out = 0; - Keeps track of items in the buffer.
+   pthread_mutex_t mutex; - Ensures only one thread accesses the buffer at a time.
+   pthread_cond_t full, empty; - Condition variables for producer and consumer.
+
+3. Producer Function:
+   - The producer thread runs in an infinite loop.
+   - Sleeps for a short period to simulate real-world production delay.
+   - Generates a random item using rand() % 100.
+   - Waits if the buffer is full using pthread_cond_wait(&empty, &mutex).
+   - Inserts the item into the buffer.
+   - Updates the buffer index (in) in a circular manner.
+   - Increments count and signals the consumer.
+   - Unlocks the mutex.
+
+4. Consumer Function:
+   - The consumer thread runs in an infinite loop.
+   - Sleeps for a short period to simulate real-world consumption delay.
+   - Waits if the buffer is empty using pthread_cond_wait(&full, &mutex).
+   - Removes the oldest item from the buffer.
+   - Updates the buffer index (out) in a circular manner.
+   - Decrements count and signals the producer.
+   - Unlocks the mutex.
+
+5. Main Function:
+   - Initializes the mutex and condition variables.
+   - Creates the producer and consumer threads using pthread_create().
+   - Waits for the threads to complete using pthread_join().
+   - Runs indefinitely.
+
+---
+
+EXAMPLE OUTPUT EXPLANATION:
+
+Producer produced: 53
+Producer produced: 23
+Consumer consumed: 53
+Producer produced: 98
+
+Explanation:
+- The producer generates 53 and 23, adding them to the buffer.
+- The consumer removes 53, which was produced first (FIFO order).
+- The producer then generates 98.
+
+Producer produced: 6
+Consumer consumed: 23
+Producer produced: 61
+
+Explanation:
+- The producer adds 6 to the buffer.
+- The consumer removes 23, maintaining FIFO order.
+- The producer adds 61 to the buffer.
+
+The program continues running, alternating between producing and consuming while maintaining synchronization.
+
+---
+
+SUMMARY:
+- The producer creates items and adds them to a shared buffer.
+- The consumer removes items in FIFO order.
+- Synchronization ensures the buffer is never overfilled or emptied incorrectly.
+- The use of mutexes prevents simultaneous access issues.
+- The program simulates real-world producer-consumer problems effectively.
+
