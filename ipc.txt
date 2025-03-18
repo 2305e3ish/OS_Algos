@@ -1,132 +1,149 @@
-INTER-PROCESS COMMUNICATION (IPC) MECHANISMS
+5. Write a program to illustrate the following IPC mechanisms
 
-1) PIPES
+5(a) Pipes
 
-AIM:
-To implement pipes for inter-process communication (IPC), allowing communication between a parent and child process through a unidirectional data flow.
+Aim:
+To illustrate Inter-Process Communication (IPC) using pipes, where a parent process writes a message, and a child process reads and prints it.
 
-ALGORITHM:
-1. Create a pipe using the `pipe()` system call.
-2. Fork a child process using `fork()`.
-3. In the parent process:
-   - Close the unused read end of the pipe.
-   - Write data to the pipe.
-   - Close the write end.
+Algorithm:
+1. Start the program.
+2. Create a pipe using the pipe() system call.
+3. Fork a child process using the fork() system call.
 4. In the child process:
-   - Close the unused write end.
-   - Read data from the pipe.
-   - Print the received data.
-   - Close the read end.
+   a. Close the write end of the pipe.
+   b. Read the message from the pipe.
+   c. Print the received message.
+   d. Close the read end of the pipe.
+5. In the parent process:
+   a. Close the read end of the pipe.
+   b. Prompt the user for a message.
+   c. Write the message to the pipe.
+   d. Close the write end of the pipe.
+6. Wait for the child process to complete.
+7. End the program.
 
-PROCEDURE:
-1. The parent process writes a message to the pipe.
-2. The child process reads from the pipe and prints the message.
-3. The pipe ensures one-way communication.
-4. Both processes close unused ends of the pipe after communication.
-5. The child receives the message and prints it.
-
-SAMPLE OUTPUT:
-Child read from pipe: Hello from pipe
+Expected Output:
+Enter a message: Hello IPC Pipes
+Child process received: Hello IPC Pipes
 
 ---
 
-2) FIFOs (NAMED PIPES)
+5(b) FIFOs (Named Pipes)
 
-AIM:
-To implement named pipes (FIFOs) for IPC, enabling communication between a parent and child process using a persistent file-based data channel.
+Aim:
+To illustrate IPC using FIFOs (Named Pipes), where a parent writes a message into a FIFO, and a child reads and prints it.
 
-ALGORITHM:
-1. Create a FIFO (named pipe) using `mkfifo()`.
-2. Fork a child process using `fork()`.
-3. In the parent process:
-   - Open the FIFO in write mode.
-   - Write a message to the FIFO.
-   - Close the FIFO.
+Algorithm:
+1. Start the program.
+2. Create a FIFO using the mkfifo() system call.
+3. Fork a child process using the fork() system call.
 4. In the child process:
-   - Open the FIFO in read mode.
-   - Read the message.
-   - Print the received message.
-   - Close the FIFO.
+   a. Open the FIFO for reading.
+   b. Read the message from the FIFO.
+   c. Print the received message.
+   d. Close the FIFO.
+5. In the parent process:
+   a. Open the FIFO for writing.
+   b. Prompt the user for a message.
+   c. Write the message to the FIFO.
+   d. Close the FIFO.
+6. Wait for the child process to complete.
+7. Delete the FIFO file using unlink().
+8. End the program.
 
-PROCEDURE:
-1. The parent writes a message to the FIFO.
-2. The child reads the message and prints it.
-3. The FIFO file exists even after processes terminate.
-4. The FIFO is deleted after use.
-
-SAMPLE OUTPUT:
-Child read from FIFO: Hello from FIFO
+Expected Output:
+Enter a message: Hello from FIFO
+Child process received: Hello from FIFO
 
 ---
 
-3) MESSAGE QUEUES (SYSTEM V)
+5(c) Message Queues
 
-AIM:
-To implement message queues for IPC, allowing structured message passing between a parent and child process.
+Aim:
+To illustrate IPC using message queues, where a parent process sends a message to a queue, and a child process reads and prints it.
 
-ALGORITHM:
-1. Generate a unique key using `ftok()`.
-2. Create a message queue using `msgget()`.
-3. Fork a child process using `fork()`.
-4. In the parent process:
-   - Create a message structure with a type and message text.
-   - Send the message using `msgsnd()`.
-   - Print confirmation of message sending.
+Algorithm:
+1. Start the program.
+2. Create a message queue using the msgget() system call.
+3. Define a message structure with a message type and text.
+4. Fork a child process using the fork() system call.
 5. In the child process:
-   - Receive the message using `msgrcv()`.
-   - Print the received message.
-6. The parent deletes the message queue after communication.
+   a. Receive the message from the message queue using msgrcv().
+   b. Print the received message.
+   c. Delete the message queue using msgctl().
+6. In the parent process:
+   a. Prompt the user for a message.
+   b. Send the message to the message queue using msgsnd().
+7. Wait for the child process to complete.
+8. End the program.
 
-PROCEDURE:
-1. The parent sends a message to the queue.
-2. The child retrieves the message and prints it.
-3. The message queue persists until explicitly removed.
-4. The parent removes the message queue after reading.
-
-SAMPLE OUTPUT:
-Parent: Message sent
-Child received: Hello from message queue
-
----
-
-4) SHARED MEMORY (SYSTEM V)
-
-AIM:
-To implement shared memory for IPC, enabling direct memory communication between a parent and child process.
-
-ALGORITHM:
-1. Generate a unique key using `ftok()`.
-2. Create a shared memory segment using `shmget()`.
-3. Fork a child process using `fork()`.
-4. In the parent process:
-   - Attach to the shared memory segment using `shmat()`.
-   - Write data to shared memory.
-   - Print confirmation of writing.
-   - Wait to allow the child to read.
-   - Detach from shared memory.
-   - Remove the shared memory segment.
-5. In the child process:
-   - Attach to shared memory.
-   - Read and print the data.
-   - Detach from shared memory.
-
-PROCEDURE:
-1. The parent writes a message into shared memory.
-2. The child reads from shared memory and prints the message.
-3. Shared memory allows fast, bidirectional communication.
-4. The parent removes the shared memory segment after use.
-
-SAMPLE OUTPUT:
-Parent wrote to shared memory: Hello from shared memory
-Child read from shared memory: Hello from shared memory
+Expected Output:
+Enter a message: Hi Message Queue
+Child process received: Hi Message Queue
 
 ---
 
-CONCLUSION:
-Each IPC mechanism provides a unique way for processes to communicate:
-- Pipes: Simple one-way communication.
-- FIFOs (Named Pipes): Communication between unrelated processes using a file-based approach.
-- Message Queues: Structured message passing with persistence.
+5(d) Shared Memory
+
+Aim:
+To illustrate IPC using Shared Memory, where a parent process writes data to shared memory, and a child process reads and prints it.
+
+Algorithm:
+Algorithm for Writer Process:
+1. Generate a unique key using ftok().
+2. Create shared memory using shmget().
+3. Attach shared memory using shmat().
+4. Prompt the user for input and write data into shared memory.
+5. Detach from shared memory using shmdt().
+
+Algorithm for Reader Process:
+1. Generate a unique key using ftok().
+2. Access shared memory using shmget().
+3. Attach to shared memory using shmat().
+4. Read and print the data from shared memory.
+5. Detach from shared memory using shmdt().
+6. Remove shared memory using shmctl().
+
+Expected Output:
+Write Data: Hello from shared memory!
+Data written in memory: Hello from shared memory!
+Child process received: Hello from shared memory!
+
+---
+
+5(d) Shared Memory
+
+Aim:
+To illustrate IPC using Shared Memory, where a parent process writes data to shared memory, and a child process reads and prints it.
+
+Algorithm:
+
+Algorithm for Writer Process:
+1. Generate a unique key using ftok().
+2. Create shared memory using shmget().
+3. Attach shared memory using shmat().
+4. Prompt the user for input and write data into shared memory.
+5. Detach from shared memory using shmdt().
+
+Algorithm for Reader Process:
+1. Generate a unique key using ftok().
+2. Access shared memory using shmget().
+3. Attach to shared memory using shmat().
+4. Read and print the data from shared memory.
+5. Detach from shared memory using shmdt().
+6. Remove shared memory using shmctl
+
+Expected Output:
+Write Data: Hello from shared memory!
+Data written in memory: Hello from shared memory!
+Child process received: Hello from shared memory!
+
+---
+
+Conclusion:
+- Pipes: Unidirectional communication between parent and child processes.
+- FIFOs (Named Pipes): Allows communication between unrelated processes.
+- Message Queues: Supports structured message passing with persistence.
 - Shared Memory: Fastest IPC but requires synchronization.
 
-These examples demonstrate different IPC techniques and how they facilitate process communication in operating systems.
+Each IPC mechanism serves a unique purpose in process communication.
