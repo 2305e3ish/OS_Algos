@@ -10,38 +10,54 @@
 #define BUFFER_SIZE 100
 
 int main() {
+    int fd;
+    char write_msg[BUFFER_SIZE];
     char read_msg[BUFFER_SIZE];
 
     // Create the FIFO if it doesn't exist
     if (mkfifo(FIFO_NAME, 0666) == -1) {
         perror("mkfifo");
-        exit(1);
     }
 
-    printf("Reader: Waiting for writer...\n");
-    int fd = open(FIFO_NAME, O_RDONLY); // Open FIFO for reading
-    if (fd == -1) {
-        perror("open");
-        exit(1);
-    }
-
-    printf("Reader: Ready to receive messages. Type 'exit' to quit.\n");
+    printf("Reader: Ready for chat. Type 'exit' to quit.\n");
     while (1) {
-        // Read the message from the FIFO
-        if (read(fd, read_msg, BUFFER_SIZE) == -1) {
-            perror("read");
-            break;
+        // Open FIFO for reading
+        fd = open(FIFO_NAME, O_RDONLY);
+        if (fd == -1) {
+            perror("open for reading");
+            exit(1);
         }
 
+        // Read the message from the FIFO
+        read(fd, read_msg, BUFFER_SIZE);
         printf("Writer: %s\n", read_msg);
+        close(fd);
 
         // Exit if the writer sends "exit"
         if (strcmp(read_msg, "exit") == 0) {
             break;
         }
+
+        // Open FIFO for writing
+        fd = open(FIFO_NAME, O_WRONLY);
+        if (fd == -1) {
+            perror("open for writing");
+            exit(1);
+        }
+
+        // Write a response to the FIFO
+        printf("You: ");
+        fgets(write_msg, BUFFER_SIZE, stdin);
+        write_msg[strcspn(write_msg, "\n")] = '\0'; // Remove newline character
+        write(fd, write_msg, strlen(write_msg) + 1);
+        close(fd);
+
+        // Exit if the user types "exit"
+        if (strcmp(write_msg, "exit") == 0) {
+            break;
+        }
     }
 
-    close(fd); // Close the FIFO
-    printf("Reader: Conversation ended.\n");
+    printf("Reader: Chat ended.\n");
     return 0;
 }

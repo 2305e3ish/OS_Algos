@@ -1,6 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
-        "cerrno": "c"
+        "cerrno": "c",
+        "stat.h": "c"
     }
 }
