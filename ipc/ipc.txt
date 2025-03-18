@@ -62,7 +62,8 @@ Child read from FIFO: Hello from FIFO
 3) MESSAGE QUEUES (SYSTEM V)
 
 AIM:
-To implement message queues for IPC, allowing structured message passing between a parent and child process.
+To implement message queues for IPC, allowing structured message passing between 
+a parent and child process.
 
 ALGORITHM:
 1. Generate a unique key using `ftok()`.
@@ -92,34 +93,37 @@ Child received: Hello from message queue
 4) SHARED MEMORY (SYSTEM V)
 
 AIM:
-To implement shared memory for IPC, enabling direct memory communication between a parent and child process.
+To implement shared memory for IPC (Inter-Process Communication), 
+allowing two processes to share data using a common memory segment.
 
 ALGORITHM:
-1. Generate a unique key using `ftok()`.
-2. Create a shared memory segment using `shmget()`.
-3. Fork a child process using `fork()`.
-4. In the parent process:
-   - Attach to the shared memory segment using `shmat()`.
-   - Write data to shared memory.
-   - Print confirmation of writing.
-   - Wait to allow the child to read.
-   - Detach from shared memory.
-   - Remove the shared memory segment.
-5. In the child process:
-   - Attach to shared memory.
-   - Read and print the data.
-   - Detach from shared memory.
+1.Generate a unique key using ftok().
+2.Create a shared memory segment using shmget().
+3.Attach the shared memory segment to the process's address space using shmat().
+4.In the writer process:
+   Write data to the shared memory.
+   Detach from the shared memory using shmdt().
+5.In the reader process:
+   Attach to the same shared memory segment.
+   Read the data from the shared memory.
+   Detach from the shared memory using shmdt().
+   Remove the shared memory segment using shmctl().
 
 PROCEDURE:
-1. The parent writes a message into shared memory.
-2. The child reads from shared memory and prints the message.
-3. Shared memory allows fast, bidirectional communication.
-4. The parent removes the shared memory segment after use.
+1.The writer process writes data to the shared memory segment.
+2.The reader process reads the data from the shared 
+memory segment.
+3.The shared memory segment persists until explicitly 
+removed using shmctl().
 
 SAMPLE OUTPUT:
-Parent wrote to shared memory: Hello from shared memory
-Child read from shared memory: Hello from shared memory
 
+Writer Process:
+Write Data: Hello, Shared Memory!
+Data written in memory: Hello, Shared Memory!
+
+Reader Process:
+Child process received: Hello, Shared Memory!
 ---
 
 CONCLUSION:
